@@ -1,31 +1,22 @@
 import React, { Component } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { ITableData } from "./MainPage";
 
-interface IProps {}
-interface IState {
+interface IProps {
   data: ITableData[];
+  showData: Function;
 }
-
-interface ITableData {
-  id: string;
-  name: string;
-  age: number;
+interface IState {
+  //data: ITableData[];
 }
 
 export default class Table extends Component<IProps, IState> {
-  topRow: string[] = ["id", "Name", "Age"];
+  topRow: string[] = ["Id", "Name", "Age", "Date", ""];
 
   constructor(props: IProps) {
     super(props);
-    this.state = {
-      data: [],
-    };
-  }
-
-  componentDidMount(): void {
-    let query: string = `/api/tableData`;
-    fetch(query)
-      .then((res) => res.json())
-      .then((resFin) => this.setState({ data: resFin }));
+    this.state = {};
   }
 
   render() {
@@ -33,17 +24,32 @@ export default class Table extends Component<IProps, IState> {
     let tableData: JSX.Element | JSX.Element[] = [];
 
     topRow = this.topRow.map((elem, i) => <th key={i}>{elem}</th>);
-    tableData = this.state.data.map((elem, i) => (
+    tableData = this.props.data.map((elem, i) => (
       <tr key={i}>
         <td>{elem.id}</td>
         <td>{elem.name}</td>
         <td>{elem.age}</td>
+        <td>{elem.date.toLocaleDateString()}</td>
+        <td>
+          <button
+            className="btn btn-outline-dark"
+            style={{
+              borderRadius: "100%",
+              border: "none",
+              outline: "none !important",
+              boxShadow: "none",
+            }}
+            onClick={() => this.props.showData(elem)}
+          >
+            <FontAwesomeIcon icon={faArrowRight} />
+          </button>
+        </td>
       </tr>
     ));
 
     return (
       <div>
-        <table>
+        <table className="table">
           <thead>
             <tr>{topRow}</tr>
           </thead>
