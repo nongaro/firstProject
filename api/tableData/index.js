@@ -1,12 +1,39 @@
 module.exports = async function (context, req) {
-  console.log("Stampo qualcosa");
-  //console.log(req);
-  console.log(context);
-  console.log("Fine");
+  // console.log("Stampo qualcosa");
+  // //console.log(req);
+  // console.log(context);
+  // console.log("Fine");
+  let data = generateData();
 
+  try {
+    if (req.method === "GET") {
+      const fromDate = req.query.fromDate || (req.body && req.body.fromDate);
+      const toDate = req.query.toDate || (req.body && req.body.toDate);
+
+      console.log(!fromDate || !toDate);
+
+      if (fromDate && toDate) {
+        data = filteredData(data, new Date(fromDate), new Date(toDate));
+      }
+    } else if (req.method === "POST") {
+      data.push(context.req.body);
+    }
+
+    context.res = {
+      body: data,
+      contentType: "application/json",
+    };
+  } catch (err) {
+    context.res = {
+      status: 500,
+    };
+  }
+};
+
+function generateData() {
   let data = [];
   let i;
-  for (i = 0; i < 12; i++) {
+  for (i = 0; i < 5; i++) {
     data.push({
       id: i.toString(),
       name: "Name " + i,
@@ -14,24 +41,13 @@ module.exports = async function (context, req) {
       date: new Date(2022, i, 1),
     });
   }
+  return data;
+}
 
-  console.log(" ");
-  console.log(" ");
-  console.log(context.req.query.fromDate);
-  console.log(context.req.query.toDate);
-
-  let fromDate = new Date(context.req.query.fromDate);
-  let toDate = new Date(context.req.query.toDate);
-
+function filteredData(data, fromDate, toDate) {
   let filteredObj = [];
 
   data.forEach((x) => {
-    // console.log("elem", x.date);
-    // console.log("query", fromDate);
-    // console.log("elem month", x.date.getMonth());
-    // console.log("query month", fromDate.getMonth());
-    // console.log(x.date.getTime() > fromDate.getTime());
-    // console.log(" ");
     if (
       x.date.getTime() >= fromDate.getTime() &&
       x.date.getTime() <= toDate.getTime()
@@ -39,7 +55,5 @@ module.exports = async function (context, req) {
       filteredObj.push(x);
     }
   });
-
-  context.res.headers = { "Content-Type": "application/json" };
-  context.res.body = { success: true, data: filteredObj };
-};
+  return filteredObj;
+}
